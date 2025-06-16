@@ -34,7 +34,7 @@ systemctl enable containerd
 echo "📦 [4/8] Ajout du dépôt Kubernetes et installation de kubeadm, kubelet, kubectl"
 apt install -y apt-transport-https ca-certificates curl gpg
 
-curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.31/deb/Release.key |
+curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.32/deb/Release.key |
   gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
 
 echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.31/deb/ /" |
@@ -45,7 +45,7 @@ apt install -y kubelet kubeadm kubectl
 apt-mark hold kubelet kubeadm kubectl
 
 echo "🚀 [5/8] Initialisation du cluster avec kubeadm (CIDR compatible Calico)"
-kubeadm init --pod-network-cidr=192.168.0.0/16 --kubernetes-version=1.31.0
+kubeadm init --pod-network-cidr=192.168.0.0/16 --kubernetes-version=1.32.0
 
 echo "🛠 [6/8] Configuration de kubectl pour l'utilisateur courant"
 mkdir -p $HOME/.kube
