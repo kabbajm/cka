@@ -1,0 +1,46 @@
+#!/bin/bash
+
+echo "⚠️  ATTENTION : cette opération va supprimer le cluster Kubernetes local (via kubeadm) !"
+read -p "Souhaites-tu vraiment continuer ? [y/N] " confirm
+
+if [[ "$confirm" != "y" && "$confirm" != "Y" ]]; then
+    echo "❌ Opération annulée."
+    exit 1
+fi
+
+echo "🔁 Réinitialisation kubeadm..."
+sudo kubeadm reset -f
+
+echo "🧹 Suppression des fichiers de configuration Kubernetes..."
+sudo rm -rf /etc/kubernetes \
+            /etc/cni \
+            /var/lib/etcd \
+            /var/lib/kubelet \
+            /var/lib/cni \
+            /opt/cni \
+            /etc/systemd/system/kubelet.service.d \
+            $HOME/.kube
+
+echo "🧼 Suppression des règles iptables CNI..."
+sudo iptables -F
+sudo iptables -t nat -F
+sudo iptables -t mangle -F
+sudo iptables -X
+
+echo "🔄 Redémarrage du démon systemd et arrêt des services..."
+sudo systemctl daemon-reexec
+sudo systemctl stop kubelet
+
+if command -v docker &> /dev/null; then
+    echo "🛑 Arrêt et suppression des conteneurs Docker..."
+    sudo docker rm -f $(sudo docker ps -aq) 2>/dev/null || true
+    sudo systemctl stop docker
+fi
+
+if command -v crictl &> /dev/null; then
+    echo "🛑 Arrêt et suppression des conteneurs containerd..."
+    sudo crictl rm -f $(sudo crictl ps -q) 2>/dev/null || true
+    sudo systemctl stop containerd
+fi
+
+echo "✅ Kubernetes désinstallé proprement sur ce nœud."
