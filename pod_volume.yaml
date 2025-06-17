@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-init-example
+spec:
+  containers:
+  - name: main-container
+    image: busybox
+    command: ["sh", "-c", "echo Le conteneur principal démarre après l'init && sleep 3600"]
+    volumeMounts:
+    - name: shared-data
+      mountPath: /data
+  initContainers:
+  - name: init-container
+    image: busybox
+    command: ["sh", "-c", "echo 'Préparation...' > /data/init.txt"]
+    volumeMounts:
+    - name: shared-data
+      mountPath: /data
+  volumes:
+  - name: shared-data
+    emptyDir: {}
