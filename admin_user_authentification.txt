@@ -1,0 +1,16 @@
+# 1. Créer un certificat client (authentification)
+# Générer une clé privée
+openssl genrsa -out ahmed.key 2048
+
+# Générer un CSR
+openssl req -new -key ahmed.key -out ahmed.csr -subj "/CN=ahmed/O=dev"
+
+# Signer le certificat avec le certificat du cluster
+openssl x509 -req -in ahmed.csr -CA /etc/kubernetes/pki/ca.crt \
+  -CAkey /etc/kubernetes/pki/ca.key -CAcreateserial -out ahmed.crt -days 365
+
+
+# 2. modifier kubeconfig pour dev-user
+kubectl config set-credentials ahmed --client-certificate=ahmed.crt --client-key=ahmed.key --embed-certs=true
+kubectl config set-context ahmed-context --cluster=kubernetes --user=ahmed
+kubectl config use-context ahmed-context
