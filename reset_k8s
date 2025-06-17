@@ -19,6 +19,7 @@ sudo rm -rf /etc/kubernetes \
             /var/lib/cni \
             /opt/cni \
             /etc/systemd/system/kubelet.service.d \
+            /var/run/kubernetes \
             $HOME/.kube
 
 echo "🧼 Suppression des règles iptables CNI..."
@@ -28,8 +29,10 @@ sudo iptables -t mangle -F
 sudo iptables -X
 
 echo "🔄 Redémarrage du démon systemd et arrêt des services..."
+sudo systemctl daemon-reload
 sudo systemctl daemon-reexec
 sudo systemctl stop kubelet
+sudo systemctl disable kubelet
 
 if command -v docker &> /dev/null; then
     echo "🛑 Arrêt et suppression des conteneurs Docker..."
@@ -42,5 +45,19 @@ if command -v crictl &> /dev/null; then
     sudo crictl rm -f $(sudo crictl ps -q) 2>/dev/null || true
     sudo systemctl stop containerd
 fi
+
+echo "🧼 pression des paquets kubeadm, kubelet, kubectl"
+sudo apt-mark unhold kubelet kubeadm kubectl
+sudo apt purge -y kubelet kubeadm kubectl
+sudo apt autoremove -y
+
+echo "🐳 Suppression de containerd (optionnel)"
+read -p "Souhaitez-vous supprimer containerd aussi ? [y/N]: " ans
+if [[ "$ans" =~ ^[Yy]$ ]]; then
+  sudo apt purge -y containerd
+  sudo rm -rf /etc/containerd
+  sudo rm -rf /var/lib/containerd
+fi
+
 
 echo "✅ Kubernetes désinstallé proprement sur ce nœud."
