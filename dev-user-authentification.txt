@@ -19,3 +19,5 @@ kubectl config set-context dev-user-context \
   --cluster=kubernetes \
   --namespace=dev \
   --user=dev-user
+
+kubectl config use-context dev-user-context
