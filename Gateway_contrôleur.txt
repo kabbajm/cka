@@ -1,0 +1,13 @@
+# Installer Traefik avec support Gateway API
+# 1. Ajoute le dépôt Helm :
+helm repo add traefik https://traefik.github.io/charts
+helm repo update
+
+# 2. Installe Traefik avec support Gateway API activé :
+helm install traefik traefik/traefik \
+  --namespace traefik --create-namespace \
+  --set experimental.kubernetesGateway.enabled=true \
+  --set ingressClass.enabled=false
+
+# 3. Créer une Gateway avec cette classe
+kubectl apply -f gateway.yaml
