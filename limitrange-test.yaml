@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test-lr
+  namespace: dev
+spec:
+  containers:
+  - name: test
+    image: nginx
