@@ -17,18 +17,21 @@ spec:
         image: nginx:1.25
         ports:
         - containerPort: 80
+        #livenessProbe : pour redémarrer un conteneur bloqué
         livenessProbe:
           httpGet:
             path: /
             port: 80
           initialDelaySeconds: 10
           periodSeconds: 5
+        #readinessProbe : pour savoir quand le pod est prêt à recevoir du trafic
         readinessProbe:
           httpGet:
             path: /
             port: 80
           initialDelaySeconds: 5
           periodSeconds: 5
+        #startupProbe : pour donner plus de temps au démarrage (utile avec des applis lentes)
         startupProbe:
           httpGet:
             path: /
