@@ -1,0 +1,28 @@
+# 1. SAUVEGARDE etcd
+
+ETCDCTL_API=3 etcdctl snapshot save /root/etcd-backup.db \
+  --endpoints=https://127.0.0.1:2379 \
+  --cacert=/etc/kubernetes/pki/etcd/ca.crt \
+  --cert=/etc/kubernetes/pki/etcd/client.crt \
+  --key=/etc/kubernetes/pki/etcd/client.key
+  
+## Vérifie la sauvegarde :
+ETCDCTL_API=3 etcdctl snapshot status /root/etcd-backup.db
+
+# 2. RESTAURATION etcd
+# La restauration recrée un nouveau répertoire de données, tu dois ensuite reconfigurer le pod etcd pour utiliser ce nouveau chemin.
+
+# a. Restaure le snapshot dans un dossier vierge :
+ETCDCTL_API=3 etcdctl snapshot restore /root/etcd-backup.db \
+  --data-dir /var/lib/etcd-from-backup
+# Cela recrée un répertoire member dans /var/lib/etcd-from-backup
+
+# b. Modifier le manifest statique /etc/kubernetes/manifests/etcd.yaml
+## Remplace :
+--data-dir=/var/lib/etcd
+## par :
+--data-dir=/var/lib/etcd-from-backup
+
+# c. Vérifier l'état de etcd
+kubectl get pods -n kube-system
+kubectl get nodes
