@@ -1,0 +1,21 @@
+# 1. Créer un certificat client (authentification)
+# Générer une clé privée
+openssl genrsa -out dev-user.key 2048
+
+# Générer un CSR
+openssl req -new -key dev-user.key -out dev-user.csr -subj "/CN=dev-user/O=dev-group"
+
+# Signer le certificat avec le certificat du cluster
+openssl x509 -req -in dev-user.csr -CA /etc/kubernetes/pki/ca.crt \
+  -CAkey /etc/kubernetes/pki/ca.key -CAcreateserial -out dev-user.crt -days 365
+
+# 2. modifier kubeconfig pour dev-user
+kubectl config set-credentials dev-user \
+  --client-certificate=dev-user.crt \
+  --client-key=dev-user.key \
+  --embed-certs=true
+
+kubectl config set-context dev-user-context \
+  --cluster=kubernetes \
+  --namespace=dev \
+  --user=dev-user
