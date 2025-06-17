@@ -1,0 +1,25 @@
+# 1. Créer l’arborescence 
+mkdir -p mysql-kustomize/base
+mkdir -p mysql-kustomize/overlays/{dev,staging,prod}
+
+# 2. Créer les fichiers de base
+configmap.yaml : variables d'environnement MySQL (base, user)
+secret.yaml : placeholder (écrasé par overlay ou script)
+service.yaml : service headless MySQL
+statefulset.yaml : déploiement principal
+kustomization.yaml : liste tous les fichiers ci-dessus
+
+# 3. Créer les overlays patch.yaml
+Dans chaque répertoire dev, staging, prod, un patch.yaml (modifie image, mots de passe, ressources, répliques…)
+Et un kustomization.yaml dans chaque overlay
+
+# 4. Appliquer un environnement
+kubectl apply -k mysql-kustomize/overlays/dev
+kubectl apply -k mysql-kustomize/overlays/staging
+kubectl apply -k mysql-kustomize/overlays/prod
+
+ou à l'aide d'un script
+./deploy-mysql.sh dev
+
+# 5. S'il faut supprimer
+kubectl delete -k mysql-kustomize/overlays/dev
