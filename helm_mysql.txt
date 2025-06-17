@@ -1,0 +1,13 @@
+helm version
+
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo update
+
+helm install my-mysql bitnami/mysql \
+  --set auth.rootPassword=mypassword \
+  --set auth.database=mydb \
+  --set auth.username=myuser \
+  --set auth.password=myuserpwd \
+  --set primary.persistence.size=1Gi \
+  --set primary.persistence.storageClass=standard \
+  --set architecture=standalone
